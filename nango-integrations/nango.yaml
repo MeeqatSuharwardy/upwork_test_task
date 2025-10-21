@@ -1,0 +1,75 @@
+integrations:
+  # GitHub Integration (Pre-built from Nango)
+  github:
+    provider: github
+    syncs:
+      github-issues:
+        runs: every 30min
+        endpoint: /api/nango/syncs/github-issues
+        output: GithubIssue
+        sync_type: incremental
+        description: Syncs all GitHub issues from repositories
+      github-pull-requests:
+        runs: every 30min
+        endpoint: /api/nango/syncs/github-prs
+        output: GithubPR
+        sync_type: incremental
+        description: Syncs all GitHub pull requests
+
+  # Slack Integration (Custom)
+  slack:
+    provider: slack
+    syncs:
+      slack-messages:
+        runs: every 15min
+        endpoint: /api/nango/syncs/slack-messages
+        output: SlackMessage
+        sync_type: incremental
+        description: Syncs messages from Slack channels
+      slack-channels:
+        runs: every 1h
+        endpoint: /api/nango/syncs/slack-channels
+        output: SlackChannel
+        sync_type: full
+        description: Syncs all Slack channels
+
+models:
+  GithubIssue:
+    id: string
+    title: string
+    body: string
+    state: string
+    created_at: string
+    updated_at: string
+    user:
+      login: string
+      avatar_url: string
+
+  GithubPR:
+    id: string
+    title: string
+    body: string
+    state: string
+    created_at: string
+    updated_at: string
+    head:
+      ref: string
+    base:
+      ref: string
+
+  SlackMessage:
+    id: string
+    text: string
+    user: string
+    channel: string
+    timestamp: string
+    thread_ts: string?
+
+  SlackChannel:
+    id: string
+    name: string
+    is_channel: boolean
+    is_private: boolean
+    created: number
+    num_members: number
+
