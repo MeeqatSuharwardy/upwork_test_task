@@ -1,30 +1,38 @@
 # Nango Next.js Integration Demo
 
-A complete, production-ready implementation of Nango in a Next.js application, featuring GitHub (pre-built) and Slack (custom) integrations with full OAuth authentication, data syncing, and connection management.
+A complete, production-ready implementation of Nango in a Next.js application, featuring GitHub (pre-built), Slack (custom), and Stripe (custom from scratch) integrations with full OAuth authentication, data syncing, and connection management. **Now with self-hosted Nango support!**
 
 ![Next.js](https://img.shields.io/badge/Next.js-14.0-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
 ![Nango](https://img.shields.io/badge/Nango-0.36-green)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## 🌟 Features
 
 - ✅ **Full Nango Integration** - Complete implementation of Nango OAuth flow
+- 🐳 **Self-Hosted Nango** - Run Nango locally with Docker Compose
 - 🔗 **GitHub Integration** - Pre-built integration for GitHub API access
 - 💬 **Slack Integration** - Custom integration for Slack workspace management
+- 💳 **Stripe Integration** - Built from scratch with customers, payments, and subscriptions
 - 🎨 **Modern UI** - Beautiful, responsive interface built with Tailwind CSS
 - 🔄 **Connection Management** - Add, test, and remove connections easily
 - 🔐 **Secure Authentication** - OAuth 2.0 flow handled by Nango
 - 📊 **Data Syncing** - Automated data synchronization with configurable intervals
 - 🪝 **Webhook Support** - Real-time event handling
 - 🛠️ **TypeScript** - Fully typed for better developer experience
+- 📈 **Analytics Dashboard** - Real-time Stripe analytics with revenue tracking
 
 ## 📋 Table of Contents
 
 - [Architecture Overview](#architecture-overview)
+- [Self-Hosted vs Cloud](#self-hosted-vs-cloud)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+  - [Option 1: Cloud Nango](#option-1-cloud-nango-fastest)
+  - [Option 2: Self-Hosted Nango](#option-2-self-hosted-nango-recommended)
 - [Project Structure](#project-structure)
+- [Stripe Integration Guide](#stripe-integration-guide)
 - [Creating a New Integration](#creating-a-new-integration)
 - [API Routes](#api-routes)
 - [Configuration](#configuration)
@@ -64,19 +72,48 @@ This project demonstrates the complete Nango integration architecture:
 3. **Integrations (`nango-integrations/`)**: Custom sync scripts and configurations
 4. **Utilities (`lib/`)**: Reusable Nango client and server instances
 
+## 🆚 Self-Hosted vs Cloud
+
+This demo supports both **Cloud Nango** (Nango.dev) and **Self-Hosted Nango** (Docker):
+
+| Feature | Cloud | Self-Hosted |
+|---------|-------|-------------|
+| Setup Time | 5 minutes | 30 minutes |
+| Maintenance | Managed | DIY |
+| Data Location | Nango's servers | Your infrastructure |
+| Cost | Pay per usage | Infrastructure only |
+| Customization | Limited | Unlimited |
+| Best For | Quick start, production | Control, privacy, development |
+
+📚 **See [docs/CLOUD_VS_SELFHOSTED.md](docs/CLOUD_VS_SELFHOSTED.md) for detailed comparison**
+
 ## ✅ Prerequisites
 
-Before you begin, ensure you have:
+### For Cloud Nango:
 
 - **Node.js** 18.0 or higher
 - **npm** or **yarn** package manager
 - **Nango Account** - [Sign up here](https://app.nango.dev)
 - **GitHub Account** - For GitHub integration
 - **Slack Workspace** - For Slack integration (optional)
+- **Stripe Account** - For Stripe integration (optional)
+
+### For Self-Hosted Nango (Additional):
+
+- **Docker Desktop** - [Download here](https://www.docker.com/products/docker-desktop)
+- **Docker Compose** (included with Docker Desktop)
+- **4GB+ RAM** available for Docker
+- **5GB+ disk space** for Docker images
 
 ## 🚀 Quick Start
 
-### 1. Clone and Install
+Choose your setup method:
+
+### Option 1: Cloud Nango (Fastest)
+
+Perfect for getting started quickly or production use.
+
+#### 1. Clone and Install
 
 ```bash
 # Clone the repository
@@ -87,7 +124,7 @@ cd nango-nextjs-demo
 npm install
 ```
 
-### 2. Set Up Environment Variables
+#### 2. Set Up Environment Variables
 
 ```bash
 # Copy the example environment file
@@ -101,7 +138,7 @@ NANGO_SECRET_KEY=your_nango_secret_key_here
 NEXT_PUBLIC_NANGO_PUBLIC_KEY=your_nango_public_key_here
 ```
 
-### 3. Configure Nango Dashboard
+#### 3. Configure Nango Dashboard
 
 #### Get Your Nango Keys
 
@@ -138,7 +175,7 @@ NEXT_PUBLIC_NANGO_PUBLIC_KEY=your_nango_public_key_here
 4. Enter Slack OAuth credentials in Nango
 5. Set integration ID to `slack`
 
-### 4. Deploy Nango Integrations (Optional)
+#### 4. Deploy Nango Integrations (Optional)
 
 ```bash
 # Install Nango CLI globally
@@ -152,7 +189,7 @@ cd nango-integrations
 nango deploy
 ```
 
-### 5. Run the Application
+#### 5. Run the Application
 
 ```bash
 # Start development server
@@ -161,6 +198,121 @@ npm run dev
 # Open browser
 open http://localhost:3000
 ```
+
+---
+
+### Option 2: Self-Hosted Nango (Recommended)
+
+Perfect for local development, data privacy, or custom requirements.
+
+#### 1. Clone and Install
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd nango-nextjs-demo
+
+# Install dependencies
+npm install
+```
+
+#### 2. Start Local Nango Instance
+
+```bash
+# Start Nango with Docker Compose
+npm run nango:start
+
+# This will:
+# - Start PostgreSQL database
+# - Start Redis cache
+# - Start Nango server
+# - Start Nango jobs worker
+
+# Wait for services to be ready (30-60 seconds)
+```
+
+#### 3. Configure Nango
+
+```bash
+# Open Nango Dashboard
+open http://localhost:3003/admin
+
+# Login with default credentials:
+# Email: admin@example.com
+# Password: admin123
+
+# ⚠️  Change these credentials for production!
+```
+
+#### 4. Get API Keys
+
+1. In the Nango dashboard, go to **Settings** → **API Keys**
+2. Copy your **Public Key** and **Secret Key**
+3. Create your environment file:
+
+```bash
+cp .env.example .env
+```
+
+4. Edit `.env`:
+
+```env
+# Self-Hosted Configuration
+NANGO_HOST_URL=http://localhost:3003
+NANGO_SECRET_KEY=your_local_secret_key
+NEXT_PUBLIC_NANGO_PUBLIC_KEY=your_local_public_key
+
+# For cloud instead, use:
+# NANGO_HOST_URL=https://api.nango.dev
+```
+
+#### 5. Configure Stripe Integration
+
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com/)
+2. Navigate to **Settings** → **Connect** → **Settings**
+3. Add redirect URL: `http://localhost:3003/oauth/callback`
+4. Copy **Client ID** and **Client Secret**
+5. In Nango dashboard:
+   - Click **Integrations** → **Add Integration**
+   - Select **Stripe**
+   - Enter your OAuth credentials
+   - Set integration ID to `stripe`
+
+#### 6. Run the Application
+
+```bash
+# Start development server
+npm run dev
+
+# Open browser
+open http://localhost:3000
+
+# Connect Stripe and see your data!
+```
+
+#### 7. Verify Setup (Optional)
+
+```bash
+# Run comprehensive tests
+bash scripts/test-setup.sh
+
+# Or individually:
+npm run nango:status  # Check Docker services
+npm run nango:logs    # View logs
+```
+
+#### Useful Commands
+
+```bash
+npm run nango:start    # Start Nango services
+npm run nango:stop     # Stop Nango services
+npm run nango:restart  # Restart services
+npm run nango:status   # Check service status
+npm run nango:logs     # View logs
+npm run docker:clean   # Remove all data and reset
+```
+
+📚 **See [docs/SELF_HOSTED_SETUP.md](docs/SELF_HOSTED_SETUP.md) for detailed guide**
 
 ## 📁 Project Structure
 
@@ -195,12 +347,23 @@ nango-nextjs-demo/
 │   │   └── syncs/
 │   │       ├── slack-messages.ts         # Sync Slack messages
 │   │       └── slack-channels.ts         # Sync Slack channels
+│   ├── stripe/
+│   │   └── syncs/
+│   │       ├── stripe-customers.ts       # Sync Stripe customers
+│   │       ├── stripe-payments.ts        # Sync Stripe payments
+│   │       └── stripe-subscriptions.ts   # Sync Stripe subscriptions
 │   ├── models.ts                         # TypeScript models
 │   └── nango.yaml                        # Nango configuration
 ├── docs/
-│   └── SETUP_GUIDE.md                    # Detailed setup guide
+│   ├── SETUP_GUIDE.md                    # Detailed setup guide
+│   ├── SELF_HOSTED_SETUP.md              # Self-hosted guide (NEW!)
+│   └── CLOUD_VS_SELFHOSTED.md            # Comparison guide (NEW!)
 ├── scripts/
-│   └── setup-nango.sh                    # Setup automation script
+│   ├── setup-nango.sh                    # Setup automation script
+│   ├── start-local-nango.sh              # Start local Nango (NEW!)
+│   ├── stop-local-nango.sh               # Stop local Nango (NEW!)
+│   └── test-setup.sh                     # Test setup (NEW!)
+├── docker-compose.yml                    # Docker configuration (NEW!)
 ├── .env.example                          # Example environment variables
 ├── package.json
 └── README.md                             # This file

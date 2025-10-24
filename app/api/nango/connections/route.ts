@@ -10,10 +10,13 @@ export async function GET(request: NextRequest) {
   try {
     // In production, you'd filter by authenticated user
     // For demo purposes, we'll get all connections
-    const connections = await nango.listConnections()
+    const result = await nango.listConnections()
+    
+    // Nango returns { connections: [...] }, not an array directly
+    const connections = result?.connections || []
     
     return NextResponse.json({ 
-      connections: connections || [],
+      connections,
       success: true 
     })
   } catch (error: any) {

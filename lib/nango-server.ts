@@ -10,10 +10,12 @@ export function getNangoServer(): Nango {
       throw new Error('NANGO_SECRET_KEY is not set')
     }
 
+    const hostUrl = process.env.NANGO_HOST_URL
+
     nangoServerInstance = new Nango({ 
       secretKey,
-      // Optional: If using self-hosted Nango
-      // host: process.env.NANGO_HOST_URL
+      // Support for self-hosted Nango instance
+      ...(hostUrl && { host: hostUrl })
     })
   }
 

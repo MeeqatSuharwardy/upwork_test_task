@@ -22,6 +22,20 @@ const integrations: Integration[] = [
     description: 'Connect to Slack to send messages and manage channels',
     icon: '💬',
     type: 'custom'
+  },
+  {
+    id: 'stripe',
+    name: 'Stripe',
+    description: 'Connect to Stripe to sync customers, payments, and subscriptions',
+    icon: '💳',
+    type: 'custom'
+  },
+  {
+    id: 'twilio',
+    name: 'Twilio',
+    description: 'Connect to Twilio to sync messages, calls, and phone numbers',
+    icon: '📱',
+    type: 'custom'
   }
 ]
 

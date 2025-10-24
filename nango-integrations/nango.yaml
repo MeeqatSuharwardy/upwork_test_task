@@ -33,6 +33,52 @@ integrations:
         sync_type: full
         description: Syncs all Slack channels
 
+  # Stripe Integration (Custom - Built from Scratch)
+  stripe:
+    provider: stripe
+    syncs:
+      stripe-customers:
+        runs: every 1h
+        endpoint: /api/nango/syncs/stripe-customers
+        output: StripeCustomer
+        sync_type: incremental
+        description: Syncs Stripe customers with pagination support
+      stripe-payments:
+        runs: every 30min
+        endpoint: /api/nango/syncs/stripe-payments
+        output: StripePayment
+        sync_type: incremental
+        description: Syncs Stripe payment intents and charges
+      stripe-subscriptions:
+        runs: every 1h
+        endpoint: /api/nango/syncs/stripe-subscriptions
+        output: StripeSubscription
+        sync_type: incremental
+        description: Syncs Stripe subscriptions and their statuses
+
+  # Twilio Integration (Custom - Built from Scratch)
+  twilio:
+    provider: twilio
+    syncs:
+      twilio-messages:
+        runs: every 15min
+        endpoint: /api/nango/syncs/twilio-messages
+        output: TwilioMessage
+        sync_type: incremental
+        description: Syncs SMS and MMS messages sent and received
+      twilio-calls:
+        runs: every 30min
+        endpoint: /api/nango/syncs/twilio-calls
+        output: TwilioCall
+        sync_type: incremental
+        description: Syncs voice call records and their status
+      twilio-phone-numbers:
+        runs: every 1h
+        endpoint: /api/nango/syncs/twilio-phone-numbers
+        output: TwilioPhoneNumber
+        sync_type: full
+        description: Syncs all phone numbers in the account
+
 models:
   GithubIssue:
     id: string
@@ -72,4 +118,75 @@ models:
     is_private: boolean
     created: number
     num_members: number
+
+  StripeCustomer:
+    id: string
+    email: string
+    name: string
+    created: number
+    currency: string
+    balance: number
+    delinquent: boolean
+    description: string
+    metadata: object
+
+  StripePayment:
+    id: string
+    amount: number
+    currency: string
+    status: string
+    customer: string
+    created: number
+    description: string
+    payment_method: string
+    receipt_email: string
+    metadata: object
+
+  StripeSubscription:
+    id: string
+    customer: string
+    status: string
+    current_period_start: number
+    current_period_end: number
+    created: number
+    cancel_at_period_end: boolean
+    canceled_at: number?
+    trial_start: number?
+    trial_end: number?
+    metadata: object
+
+  TwilioMessage:
+    sid: string
+    from: string
+    to: string
+    body: string
+    status: string
+    direction: string
+    date_created: string
+    date_sent: string?
+    date_updated: string
+    price: string?
+    error_code: number?
+    error_message: string?
+
+  TwilioCall:
+    sid: string
+    from: string
+    to: string
+    status: string
+    direction: string
+    duration: number?
+    start_time: string
+    end_time: string?
+    price: string?
+    answered_by: string?
+
+  TwilioPhoneNumber:
+    sid: string
+    phone_number: string
+    friendly_name: string
+    capabilities: object
+    status: string
+    date_created: string
+    date_updated: string
 

@@ -10,10 +10,12 @@ export function getNangoInstance(): Nango {
       throw new Error('NEXT_PUBLIC_NANGO_PUBLIC_KEY is not set')
     }
 
+    const hostUrl = process.env.NEXT_PUBLIC_NANGO_HOST_URL || process.env.NANGO_HOST_URL
+
     nangoInstance = new Nango({ 
       publicKey,
-      // Optional: If using self-hosted Nango
-      // host: process.env.NEXT_PUBLIC_NANGO_HOST_URL
+      // Support for self-hosted Nango instance
+      ...(hostUrl && { host: hostUrl })
     })
   }
 

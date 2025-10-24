@@ -1,0 +1,140 @@
+version: "3.9"
+
+services:
+  # PostgreSQL Database for Nango
+  nango-db:
+    image: postgres:15-alpine
+    container_name: nango-db
+    environment:
+      POSTGRES_PASSWORD: nango
+      POSTGRES_USER: nango
+      POSTGRES_DB: nango
+    ports:
+      - "5432:5432"
+    volumes:
+      - nango-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nango"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nango-network
+
+  # Redis for Nango's queue system
+  nango-redis:
+    image: redis:7-alpine
+    container_name: nango-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - nango-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nango-network
+
+  # Nango Server (Main API)
+  nango-server:
+    image: nangohq/nango-server:latest
+    container_name: nango-server
+    platform: linux/amd64
+    ports:
+      - "3003:3003"
+    environment:
+      # Database Configuration
+      NANGO_DB_HOST: nango-db
+      NANGO_DB_PORT: 5432
+      NANGO_DB_NAME: nango
+      NANGO_DB_USER: nango
+      NANGO_DB_PASSWORD: nango
+      NANGO_DB_SSL: "false"
+
+      # Redis Configuration
+      NANGO_REDIS_HOST: nango-redis
+      NANGO_REDIS_PORT: 6379
+
+      # Server Configuration
+      SERVER_PORT: 3003
+      NANGO_SERVER_URL: http://localhost:3003
+      NANGO_DASHBOARD_URL: http://localhost:3000
+
+      # Encryption (base64-encoded 256-bit key)
+      NANGO_ENCRYPTION_KEY: "dPsUuUXP1acYLFSNnCrqImW2jGaa3qI2l9fEGnsKBsY="
+
+      # Callback URL for OAuth
+      NANGO_CALLBACK_URL: http://localhost:3003/oauth/callback
+
+      # Admin credentials
+      NANGO_ADMIN_EMAIL: admin@example.com
+      NANGO_ADMIN_PASSWORD: admin123
+
+      # Environment
+      NODE_ENV: development
+      LOG_LEVEL: info
+    depends_on:
+      nango-db:
+        condition: service_healthy
+      nango-redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://localhost:3003/health || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 60s
+    networks:
+      - nango-network
+    restart: unless-stopped
+
+  # Nango Jobs (Background worker for syncs)
+  nango-jobs:
+    image: nangohq/nango-server:latest
+    container_name: nango-jobs
+    platform: linux/amd64
+    environment:
+      # Worker mode
+      NANGO_WORKER: "true"
+      # Database Configuration
+      NANGO_DB_HOST: nango-db
+      NANGO_DB_PORT: 5432
+      NANGO_DB_NAME: nango
+      NANGO_DB_USER: nango
+      NANGO_DB_PASSWORD: nango
+      NANGO_DB_SSL: "false"
+
+      # Redis Configuration
+      NANGO_REDIS_HOST: nango-redis
+      NANGO_REDIS_PORT: 6379
+
+      # Server Configuration
+      NANGO_SERVER_URL: http://nango-server:3003
+
+      # Encryption (must match server)
+      NANGO_ENCRYPTION_KEY: "dPsUuUXP1acYLFSNnCrqImW2jGaa3qI2l9fEGnsKBsY="
+
+      # Environment
+      NODE_ENV: development
+      LOG_LEVEL: info
+    depends_on:
+      - nango-server
+    networks:
+      - nango-network
+    restart: unless-stopped
+
+volumes:
+  nango-db-data:
+    driver: local
+  nango-redis-data:
+    driver: local
+
+networks:
+  nango-network:
+    driver: bridge

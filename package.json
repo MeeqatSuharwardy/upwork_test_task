@@ -10,7 +10,13 @@
     "lint": "next lint",
     "setup": "bash scripts/setup-nango.sh",
     "verify": "bash scripts/verify-setup.sh",
-    "deploy:nango": "cd nango-integrations && nango deploy"
+    "deploy:nango": "cd nango-integrations && nango deploy",
+    "nango:start": "bash scripts/start-local-nango.sh",
+    "nango:stop": "bash scripts/stop-local-nango.sh",
+    "nango:logs": "docker-compose logs -f",
+    "nango:restart": "docker-compose restart",
+    "nango:status": "docker-compose ps",
+    "docker:clean": "docker-compose down -v && docker system prune -f"
   },
   "dependencies": {
     "@nangohq/frontend": "^0.36.0",
